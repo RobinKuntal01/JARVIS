@@ -1,0 +1,91 @@
+import random
+import webbrowser
+import pyttsx3
+import datetime
+import speech_recognition as sr
+import pyaudio
+import wikipedia
+import googlesearch
+import os
+
+
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voice')
+engine.setProperty('voice', voices[0])
+
+
+def speak(audio):
+    engine.say(audio)
+    engine.runAndWait()
+
+
+def wishme():
+    hour = int(datetime.datetime.now().hour)
+    if 6 < hour < 12:
+        speak("Good Morning")
+    elif 12 < hour < 18:
+        speak("Good Afternoon")
+    else:
+        speak("Good Evening")
+
+    speak("I am Jarvis, how may i help you?")
+
+
+def takeCommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening.....")
+        r.pause_threshold = 0.5
+        r.energy_threshold = 1500
+        audio = r.listen(source)
+
+    try:
+        print("Recognizing......")
+        query = r.recognize_google(audio, language='en_in')
+        print(f'you said: {query}')
+
+    except Exception as e:
+        print('say that again pls')
+        return "None"
+    return query
+
+
+
+# take input from the user and returns a string
+
+
+if __name__ == "__main__":
+    wishme()
+    while True:
+        query = takeCommand().lower()
+        if 'wikipedia' in query:
+            speak("Seaching wikipedia")
+            query = query.replace("wikipedia", "")
+            results = wikipedia.summary(query, sentences = 2)
+            speak("According to wikipedia...")
+            print(results)
+            speak(results)
+
+        elif 'open google' in query:
+            speak('opening google...')
+            webbrowser.open('google.com')
+
+        elif 'open youtube' in query:
+            speak('opening youtube')
+            webbrowser.open('youtube.com')
+
+        elif 'play music' in query:
+            speak('playing music...')
+            music_dir = 'C:\\Users\\Robin\\Music\\Romantic'
+            songs = os.listdir(music_dir)
+            print(songs)
+            a = random.randint(1,len(songs)-1)
+            os.startfile(os.path.join(music_dir, songs[a]))
+
+        elif 'time' in query:
+            strTime = datetime.datetime.now().strftime('%H:%M:%S')
+            print(strTime)
+            speak(strTime)
+
+
+
